@@ -1,53 +1,75 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Beleza MZ 📷</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff2d78">
+<title>Beleza MZ</title>
 <style>
-body{margin:0;font-family:sans-serif;background:#111;color:white;text-align:center}
-h1{color:#ff2d78;margin:10px}
-video{width:95%;max-width:500px;border-radius:15px;background:#000}
-button{padding:14px 20px;margin:8px;border:none;border-radius:30px;font-size:16px;font-weight:bold}
-#abrir{background:#ff2d78;color:white}
-#tirar{background:white;color:black}
-canvas{width:95%;max-width:500px;border-radius:15px;margin-top:10px}
+body{background:#111;color:white;text-align:center;font-family:sans-serif}
+h1{color:#ff2d78}
+button{padding:15px 25px;border-radius:30px;border:none;font-size:18px;margin:5px}
+.rosa{background:#ff2d78;color:white}
+.branco{background:white}
+video{width:90%;border-radius:15px;background:black}
 select{padding:10px;border-radius:20px}
 </style>
 </head>
 <body>
 <h1>Beleza MZ 📷</h1>
 <p>App de fotos de Moçambique</p>
-<button id="abrir" onclick="abrir()">📷 Abrir Câmara</button><br>
-<video id="v" autoplay playsinline muted></video><br>
-<label>Filtro:</label>
-<select id="filtro" onchange="document.getElementById('v').style.filter=this.value">
+<button class="rosa" onclick="abrir()">📷 Abrir Câmara</button>
+<br>
+<button class="branco" onclick="usarFrente()">🤳 Câmara Frontal</button>
+<button class="branco" onclick="usarTras()">📸 Câmara Traseira</button>
+<br><br>
+<video id="v" autoplay playsinline></video>
+<br><br>
+Filtro: <select id="filtro">
 <option value="none">Normal</option>
 <option value="grayscale(1)">Preto e Branco</option>
-<option value="sepia(0.8)">Sépia</option>
-<option value="contrast(1.3) saturate(1.5)">Vivo</option>
-<option value="blur(1px) brightness(1.2)">Suave</option>
-</select><br>
-<button id="tirar" onclick="tirar()">📸 Tirar Foto</button>
-<canvas id="c"></canvas>
-<p id="msg"></p>
+<option value="sepia(1)">Antigo</option>
+<option value="contrast(1.5)">Forte</option>
+<option value="saturate(2)">Cores Fortes</option>
+</select>
+<br><br>
+<button class="branco" onclick="tirar()">📸 Tirar Foto</button>
+<br><br>
+<canvas id="c" style="width:90%;border-radius:15px"></canvas>
+<br>
+<a id="baixar" style="display:none;color:white">⬇ Baixar Foto</a>
 <script>
+let stream=null;
+let frente=true;
 async function abrir(){
- try{
-  const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});
-  document.getElementById('v').srcObject=s;
-  document.getElementById('msg').innerText="Câmara aberta! Sorri 😍";
- }catch(e){ document.getElementById('msg').innerText="Erro: "+e.message+" - Usa HTTPS e permite a câmara"; }
+  if(stream) stream.getTracks().forEach(t=>t.stop());
+  let modo = frente ? "user" : "environment";
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:modo}});
+  }catch(e){
+    stream = await navigator.mediaDevices.getUserMedia({video:true});
+  }
+  let v=document.getElementById('v');
+  v.srcObject=stream;
+  v.style.filter=document.getElementById('filtro').value;
+}
+function usarFrente(){ frente=true; abrir(); }
+function usarTras(){ frente=false; abrir(); }
+document.getElementById('filtro').onchange=function(){
+  document.getElementById('v').style.filter=this.value;
 }
 function tirar(){
- const v=document.getElementById('v'),c=document.getElementById('c');
- c.width=v.videoWidth; c.height=v.videoHeight;
- const ctx=c.getContext('2d');
- ctx.filter=document.getElementById('filtro').value;
- ctx.drawImage(v,0,0);
- const a=document.createElement('a');
- a.download='beleza-mz.png'; a.href=c.toDataURL('image/png'); a.click();
- document.getElementById('msg').innerText="Foto guardada! 📸";
+  let v=document.getElementById('v');
+  let c=document.getElementById('c');
+  c.width=v.videoWidth; c.height=v.videoHeight;
+  let ctx=c.getContext('2d');
+  ctx.filter=document.getElementById('filtro').value;
+  if(frente){ctx.translate(c.width,0); ctx.scale(-1,1);}
+  ctx.drawImage(v,0,0);
+  let a=document.getElementById('baixar');
+  a.href=c.toDataURL('image/png');
+  a.download='beleza-mz.png';
+  a.style.display='block';
 }
 </script>
 </body>
