@@ -1,13 +1,13 @@
 {
   "name": "Beleza MZ",
   "short_name": "Beleza MZ",
-  "start_url": ".",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#111111",
-  "theme_color": "#ff2d78",
+  "background_color": "#ff69b4",
+  "theme_color": "#ff69b4",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2957/2957.png",
+      "src": "icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
